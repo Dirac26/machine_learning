@@ -8,7 +8,7 @@ class LinearModle:
         """
         init function
         """
-        self.iter = 1001
+        self.iter = 101
         self.learning_rate = 0.01
         self.param = [0, 0]
     
