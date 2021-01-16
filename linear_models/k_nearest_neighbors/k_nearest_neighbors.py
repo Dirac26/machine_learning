@@ -20,6 +20,8 @@ class KNearestNeighbors:
         self.k = 1
         self.dataset = {}
         self.labels = {}
+        self.normalization_method = 'min_max'
+
 
     def fit(self, dataset, labels):
         """
@@ -27,18 +29,18 @@ class KNearestNeighbors:
         """
         self.dataset = dataset
         self.labels = labels
-        self.minimum = []
-        self.maximum = []
+        self.normalization_n = []
+        self.normalization_d = []
         for ind in range(len((self.dataset[list(self.dataset.keys())[0]]))):
             self.normalize_features(self.dataset, ind)
-    
+
     def predict(self, unknown):
         """
         predect the label for all unknowns in unknown dict
         """
         for title in unknown:
             for ind in range(len((unknown[list(unknown.keys())[0]]))):
-                unknown[title][ind] = (unknown[title][ind] - self.minimum[ind]) / (self.maximum[ind] - self.minimum[ind])
+                unknown[title][ind] = (unknown[title][ind] - self.normalization_n[ind]) / (self.normalization_d[ind])
         print(unknown)
         unknown_labels = {}
         for title in unknown:
@@ -52,9 +54,18 @@ class KNearestNeighbors:
         pre_norm_list = []
         for title in data_dict:
             pre_norm_list.append(data_dict[title][ind])
-        mini, maxi, norm_list = normalize.min_max_normalize(pre_norm_list)
-        self.minimum.append(mini)
-        self.maximum.append(maxi)
+        if self.normalization_method == 'min_max':
+            mini, maxi, norm_list = normalize.min_max_normalize(pre_norm_list)
+            self.normalization_n.append(mini)
+            self.normalization_d.append(maxi - mini)
+        elif self.normalization_method == 'z_score':
+            mean, var, norm_list = normalize.z_score_normalize(pre_norm_list)
+            self.normalization_n.append(mean)
+            self.normalization_d.append(var)
+        elif self.normalization_method == 'none':
+            norm_list = pre_norm_list[:]
+            self.normalization_n.append(0)
+            self.normalization_d.append(1)
         for i, title in enumerate(data_dict):
             data_dict[title][ind] = norm_list[i]
 
@@ -87,6 +98,25 @@ class KNearestNeighbors:
             return 1
         else:
             return 0
+    def get_normalization(self):
+        """
+        """
+        print('Use change_normalization method to set the normalization method to use')
+        print('min_max')
+        print('z_score')
+        print('none')
+        print (f'the model uses {self.normalization_method} normalization now')
+        return self.normalization_method
+
+    def change_normalization(self, arg):
+        if arg == 'min_max':
+            self.normalization_method = 'min_max'
+        elif arg == 'z_score':
+            self.normalization_method = 'z_score'
+        elif arg == 'none':
+            self.normalization_method = 'none'
+        else:
+            print('unknown normalization method')
 
     def ploter(self):
         """
@@ -99,7 +129,9 @@ movies = {'1': [1, 1],
 labels = {'1': 1,
           '2': 1,
           '3': 0}
-unknown = {'4': [2, 5]}
+unknown = {'4': [2, 4]}
 model = KNearestNeighbors()
+model.change_normalization('none')
+print(model.get_normalization())
 model.fit(movies, labels)
 print(model.predict(unknown))
