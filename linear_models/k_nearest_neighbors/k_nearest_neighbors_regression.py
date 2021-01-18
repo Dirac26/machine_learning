@@ -6,10 +6,9 @@ from matplotlib import pyplot as plt
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append('\\'.join(script_path.split('\\')[:-2])+'\\functions')
-from functions import distance, normalize
+import distance, normalize
 
-
-class KNearestNeighbors:
+class KNearestNeighborsReg:
     """
     class that generates k nearest neighbor model with logistic rating
     """
@@ -86,18 +85,15 @@ class KNearestNeighbors:
         """
         generate rating for the new unknown
         """
-        num_good = 0
-        num_bad = 0
+        num = 0
+        den = 0
         for neighbor in neighbors:
-            title = neighbor[1]
-            if labels[title] == 0:
-                num_bad += 1
-            elif labels[title] == 1:
-                num_good += 1
-        if num_good > num_bad:
-            return 1
-        else:
-            return 0
+            lable = self.labels[neighbor[1]]
+            dest_to_neighbor = neighbor[0]
+            num += lable / dest_to_neighbor
+            den += 1 / dest_to_neighbor
+        return num/den
+
     def get_normalization(self):
         """
         """
@@ -126,11 +122,11 @@ class KNearestNeighbors:
 movies = {'1': [1, 1],
           '2': [2, 2],
           '3': [3, 4]}
-labels = {'1': 1,
-          '2': 1,
-          '3': 0}
+labels = {'1': 5,
+          '2': 8,
+          '3': 7}
 unknown = {'4': [2, 4]}
-model = KNearestNeighbors()
+model = KNearestNeighborsReg()
 model.change_normalization('none')
 print(model.get_normalization())
 model.fit(movies, labels)
