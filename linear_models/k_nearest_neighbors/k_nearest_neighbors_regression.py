@@ -30,7 +30,8 @@ class KNearestNeighborsReg:
         self.labels = labels
         self.normalization_n = []
         self.normalization_d = []
-        for ind in range(len((self.dataset[list(self.dataset.keys())[0]]))):
+        self.first_title = list(self.dataset.keys())[0]
+        for ind in range(len(self.dataset[self.first_title])):
             self.normalize_features(self.dataset, ind)
 
     def predict(self, unknown):
@@ -49,6 +50,7 @@ class KNearestNeighborsReg:
 
     def normalize_features(self, data_dict, ind):
         """
+        normalize the data set features useing the given method
         """
         pre_norm_list = []
         for title in data_dict:
@@ -116,8 +118,18 @@ class KNearestNeighborsReg:
 
     def ploter(self):
         """
+        plot method for two features only
         """
-        pass
+        if len(self.dataset[self.first_title]) != 2:
+            print('plot is only avilable for two features')
+            return
+        x_axis = []
+        y_axis = []
+        for title in self.dataset:
+            x_axis.append(self.dataset[title][0])
+            y_axis.append(self.dataset[title][1])
+        plt.plot(x_axis, y_axis, 'o')
+        plt.show()
 
 movies = {'1': [1, 1],
           '2': [2, 2],
@@ -127,7 +139,7 @@ labels = {'1': 5,
           '3': 7}
 unknown = {'4': [2, 4]}
 model = KNearestNeighborsReg()
-model.change_normalization('none')
 print(model.get_normalization())
 model.fit(movies, labels)
 print(model.predict(unknown))
+model.ploter()
